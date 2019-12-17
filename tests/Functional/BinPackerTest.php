@@ -70,11 +70,11 @@ class BinPackerTest extends TestCase
         $this->assertCount(100, $packed);
     }
 
-    public function testGrowth()
+    public function testGrowthAllSides()
     {
-        $bin = new Bin(1000, 1000, true);
+        $bin = new Bin(10, 10, true, true);
 
-        $blockTemplate = new Block(100, 100);
+        $blockTemplate = new Block(1, 1);
 
         $blocks = [];
 
@@ -93,7 +93,64 @@ class BinPackerTest extends TestCase
         $this->assertCount(200, $blocks);
         $this->assertCount(200, $packed);
 
-        $this->assertEquals(1500, $bin->getWidth());
-        $this->assertEquals(1400, $bin->getHeight());
+
+        $this->assertEquals(15, $bin->getWidth());
+        $this->assertEquals(14, $bin->getHeight());
+    }
+
+    public function testGrowthWidth()
+    {
+        $bin = new Bin(10, 10, true, false);
+
+        $blockTemplate = new Block(1, 1);
+
+        $blocks = [];
+
+        for ($i = 1; $i <= 200; $i++) {
+            $blocks[] = clone $blockTemplate;
+        }
+
+        $packer = new BinPacker();
+
+        $blocks = $packer->pack($bin, $blocks);
+
+        $packed = array_filter($blocks, function (Block $block) {
+            return $block->getNode() && $block->getNode()->isUsed();
+        });
+
+        $this->assertCount(200, $blocks);
+        $this->assertCount(200, $packed);
+
+
+        $this->assertEquals(20, $bin->getWidth());
+        $this->assertEquals(10, $bin->getHeight());
+    }
+
+    public function testGrowthHeight()
+    {
+        $bin = new Bin(10, 10, false, true);
+
+        $blockTemplate = new Block(1, 1);
+
+        $blocks = [];
+
+        for ($i = 1; $i <= 200; $i++) {
+            $blocks[] = clone $blockTemplate;
+        }
+
+        $packer = new BinPacker();
+
+        $blocks = $packer->pack($bin, $blocks);
+
+        $packed = array_filter($blocks, function (Block $block) {
+            return $block->getNode() && $block->getNode()->isUsed();
+        });
+
+        $this->assertCount(200, $blocks);
+        $this->assertCount(200, $packed);
+
+
+        $this->assertEquals(10, $bin->getWidth());
+        $this->assertEquals(20, $bin->getHeight());
     }
 }

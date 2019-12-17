@@ -87,17 +87,17 @@ class BinPacker
     private function grow(Bin $bin, $w, $h)
     {
         $canGrowRight = false;
-        $bin->setHeight($bin->getHeight() + $h);
         $this->canGrowRight($bin->getNode(), $w, $h, $canGrowRight);
 
         $shouldGrowRight = !($bin->getWidth() >= $bin->getHeight() + $h);
-        $this->growDown($bin->getNode(), $w, $h);
 
-        if ($canGrowRight && $shouldGrowRight && $bin->isWidthGrowthAllowed()) {
+        if ($canGrowRight && $shouldGrowRight && $bin->isWidthGrowthAllowed() || !$bin->isHeightGrowthAllowed()) {
             $bin->setWidth($bin->getWidth() + $w);
+
             $this->growRight($bin->getNode(), $w, $h);
         } elseif($bin->isHeightGrowthAllowed()) {
             $bin->setHeight($bin->getHeight() + $h);
+
             $this->growDown($bin->getNode(), $w, $h);
         }
     }
