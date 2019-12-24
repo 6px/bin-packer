@@ -30,12 +30,11 @@ class BinPacker
             if ($node === null && ($bin->isWidthGrowthAllowed() || $bin->isHeightGrowthAllowed())) {
                 $this->grow($bin, $block->getWidth(), $block->getHeight());
                 $node = $this->findNodeWithRotation($root, $block);
-            }
-
-            if ($node === null && ($bin->isWidthGrowthAllowed() || $bin->isHeightGrowthAllowed())) {
-                $this->grow($bin, $block->getWidth(), $block->getHeight());
-
-                $node = $this->findNodeWithRotation($root, $block);
+                if ($node === null) {
+                    $this->shrink($bin);
+                    $this->grow($bin, $block->getWidth(), $block->getHeight());
+                    $node = $this->findNodeWithRotation($root, $block);
+                }
             }
 
             if ($node !== null) {
@@ -46,6 +45,8 @@ class BinPacker
                 $stepCallback($bin, $blocks, $block);
             }
         }
+
+        $this->shrink($bin);
 
         return $blocks;
     }
@@ -82,6 +83,27 @@ class BinPacker
         $node->setHeight($h);
 
         return $node;
+    }
+
+    private function shrink(Bin $bin)
+    {
+        $this->shrinkDownAndRight($bin, $bin->getNode());
+    }
+
+    private function shrinkDownAndRight(Bin $bin, Node $node) {
+        if ($node->getRight() && !$node->getRight()->isUsed() && $node->getRight()->getHeight() >= $bin->getHeight()) {
+            $bin->setWidth($bin->getWidth() - $node->getRight()->getWidth());
+            $node->setRight(null);
+        } elseif ($node->getRight()) {
+            $this->shrinkDownAndRight($bin, $node->getRight());
+        }
+
+        if ($node->getDown() && !$node->getDown()->isUsed() && $node->getDown()->getWidth() >= $bin->getWidth()) {
+            $bin->setHeight($bin->getHeight() - $node->getDown()->getHeight());
+            $node->setDown(null);
+        } else if ($node->getDown()) {
+            $this->shrinkDownAndRight($bin, $node->getDown());
+        }
     }
 
     private function grow(Bin $bin, $w, $h)
