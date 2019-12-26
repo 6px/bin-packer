@@ -31,7 +31,6 @@ class BinPacker
                 $this->grow($bin, $block->getWidth(), $block->getHeight());
                 $node = $this->findNodeWithRotation($root, $block);
                 if ($node === null) {
-                    $this->shrink($bin);
                     $this->grow($bin, $block->getWidth(), $block->getHeight());
                     $node = $this->findNodeWithRotation($root, $block);
                 }
